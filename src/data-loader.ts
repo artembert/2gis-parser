@@ -103,7 +103,11 @@ function clearStoreData(store: RawStore): Store {
 }
 
 async function iterateOverThePages(page: Page): Promise<any> {
-  await page.waitForNavigation();
+  try {
+    await page.waitForNavigation({ timeout: 10000 });
+  } catch (e) {
+    console.error(`navigation waiting time is up`, e);
+  }
   let toggle = await getNextPageLink(page);
   if (toggle) {
     let responsePromise = page.waitForResponse(/catalog.api.2gis.ru\/3.0\/items/g);
