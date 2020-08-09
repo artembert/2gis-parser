@@ -1,7 +1,7 @@
 import { chromium, LaunchOptions } from "playwright";
 import { ElementHandle, Page, Response } from "playwright/index";
 import { DataResponse, RawStore } from "./types/data-response";
-import { categories } from "../src-data/categories";
+import { namedCategories } from "../src-data/categories";
 import { DataProviderJson } from "./data-provider/data-provider-json";
 import { Store } from "./types/store";
 import { StartAppTime } from "./time-manager/start-app-time";
@@ -23,15 +23,16 @@ const dataProvider = new DataProviderJson();
       handleResponse(res);
     }
   });
-  await page.goto(categories[0]);
-  await toggleRetail(page);
-  await page.waitForNavigation();
-
-  // App is ready to iterate
-  await iterateOverThePages(page);
-  console.log(`Done`);
-  await page.close();
-  process.exit(0);
+  for (const [name, url] of namedCategories) {
+    console.log(`[${name}] starts`);
+    await page.goto(url);
+    await toggleRetail(page);
+    await page.waitForNavigation();
+    // App is ready to iterate
+    await iterateOverThePages(page);
+    console.log(`[${name}] done`);
+  }
+  console.log(`Stores saved`);
 })();
 
 function filterResponses(res: Response): boolean {
@@ -67,6 +68,9 @@ async function getNextPageLink(page: Page): Promise<ElementHandle<HTMLOrSVGEleme
   const controlButtonsSection = await page.$(
     'css=div[style="width:552px"]' + '>> css=div[style="position:relative;z-index:0;height:100%"]' + ">> css=._5i4ljs",
   );
+  if (!controlButtonsSection) {
+    return null;
+  }
   const button = await controlButtonsSection.$("div:last-child");
   if ((await button.getAttribute("class")) === "_1fbvw2b4") {
     console.log("Button has found");
