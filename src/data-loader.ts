@@ -14,16 +14,19 @@ const browserConfig: LaunchOptions = {
 
 const dataProvider = new DataProviderJson();
 (async () => {
+  let savedStoresInCategory = 0;
+
   // Start the app
   console.log(`App starts at ${StartAppTime.getStartTime()}`);
   const browser = await chromium.launch(browserConfig);
   const page = await browser.newPage();
-  page.on("response", (res: Response) => {
+  page.on("response", async (res: Response) => {
     if (filterResponses(res)) {
-      handleResponse(res);
+      savedStoresInCategory = await handleResponse(res, savedStoresInCategory);
     }
   });
   for (const [name, url] of namedCategories) {
+    savedStoresInCategory = 0;
     console.log(`[${name}] starts`);
     await page.goto(url);
     await toggleRetail(page);
@@ -39,15 +42,18 @@ function filterResponses(res: Response): boolean {
   return res.request().url().includes("catalog.api.2gis.ru/3.0/items?");
 }
 
-async function handleResponse(res: Response): Promise<void> {
+async function handleResponse(res: Response, savedStoresInCategory: number): Promise<number> {
   console.log("Page number: ", getPageNumberFromUrl(await res.request().url()));
   const dataResponse: DataResponse = JSON.parse((await res.body()).toString("utf8"));
   console.log("Total stores count: ", getTotalStoresQuantity(dataResponse));
+  console.log("Saved stores count: ", savedStoresInCategory);
   try {
     const stores: Store[] = getStoresFromResponse(dataResponse);
     await dataProvider.saveMultipleStores(stores);
+    return savedStoresInCategory + stores.length;
   } catch (e) {
     console.error(`Error`, e);
+    return savedStoresInCategory;
   }
 }
 
