@@ -6,8 +6,8 @@ import { categories } from "../src-data/categories";
 
 const browserConfig: LaunchOptions = {
   headless: false,
-  devtools: false,
-  args: [`--window-size=1229,891`, `--window-position=281,182`],
+  devtools: true,
+  args: [`--window-size=1229,891`, `--window-position=0,0`],
 };
 const url = "https://2gis.ru/kaliningrad/";
 (async () => {
