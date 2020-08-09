@@ -1,6 +1,6 @@
 import { chromium, LaunchOptions } from "playwright";
 import { Page, Response } from "playwright/index";
-import { DataResponse } from "./types/data-response";
+import { DataResponse, RawStore } from "./types/data-response";
 import { categories } from "../src-data/categories";
 import { DataProviderJson } from "./data-provider/data-provider-json";
 import { Store } from "./types/store";
@@ -40,16 +40,7 @@ async function handleResponse(res: Response): Promise<void> {
 }
 
 function getStoresFromResponse(res: DataResponse): Store[] {
-  return [
-    {
-      name: "n",
-      value: "v",
-    },
-    {
-      name: "n1",
-      value: "v2",
-    },
-  ];
+  return res.result.items.map(clearStoreData);
 }
 
 function getTotalStoresQuantity(res: DataResponse): number {
@@ -59,4 +50,19 @@ function getTotalStoresQuantity(res: DataResponse): number {
 async function toggleRetail(page: Page): Promise<void> {
   const retailBlock = await page.$("css=label[title=Розница]");
   await retailBlock.click();
+}
+
+function clearStoreData(store: RawStore): Store {
+  return {
+    address_name: store.address_name,
+    adm_div: store.adm_div,
+    id: store.id,
+    name: store.name,
+    name_ex: store.name_ex,
+    org: store.org,
+    point: store.point,
+    region_id: store.region_id,
+    rubrics: store.rubrics,
+    stat: store.stat,
+  };
 }

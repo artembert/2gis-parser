@@ -12,7 +12,7 @@ export interface Meta {
 export interface Result {
   context_rubrics: ContextRubric[];
   filters: Filters;
-  items: ResultItem[];
+  items: RawStore[];
   request_type: string;
   search_attributes: SearchAttributes;
   search_type: number;
@@ -57,7 +57,7 @@ export interface District {
   name: string;
 }
 
-export interface ResultItem {
+export interface RawStore {
   address: Address;
   address_comment?: string;
   address_name: string;
