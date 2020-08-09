@@ -5,7 +5,7 @@ import { DistPaths } from "../config/paths";
 
 export class DataProviderJson implements DataProviderAbstract {
   public async saveMultipleStores(stores: Store[]): Promise<void> {
-    const filePath = DistPaths.KALININGRAD;
+    const filePath = DistPaths.KALININGRAD();
     try {
       await promises.appendFile(filePath, JSON.stringify(stores, undefined, 2), "utf8");
       console.log(`Multiple stores saved to ${filePath}`);
