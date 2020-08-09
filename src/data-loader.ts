@@ -39,8 +39,9 @@ function filterResponses(res: Response): boolean {
 }
 
 async function handleResponse(res: Response): Promise<void> {
+  console.log("Page number: ", getPageNumberFromUrl(await res.request().url()));
   const dataResponse: DataResponse = JSON.parse((await res.body()).toString("utf8"));
-  console.log("Got stores: ", getTotalStoresQuantity(dataResponse));
+  console.log("Total stores count: ", getTotalStoresQuantity(dataResponse));
   try {
     const stores: Store[] = getStoresFromResponse(dataResponse);
     await dataProvider.saveMultipleStores(stores);
@@ -101,4 +102,9 @@ async function iterateOverThePages(page: Page): Promise<any> {
     await iterateOverThePages(page);
   }
   return;
+}
+
+function getPageNumberFromUrl(url: string): number {
+  const index = url.indexOf("page=");
+  return parseInt(url.substr(index + "page=".length));
 }
