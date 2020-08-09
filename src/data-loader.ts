@@ -1,5 +1,5 @@
 import { chromium, LaunchOptions } from "playwright";
-import { Page, Response } from "playwright/index";
+import { ElementHandle, Page, Response } from "playwright/index";
 import { DataResponse, RawStore } from "./types/data-response";
 import { categories } from "../src-data/categories";
 import { DataProviderJson } from "./data-provider/data-provider-json";
@@ -50,6 +50,20 @@ function getTotalStoresQuantity(res: DataResponse): number {
 async function toggleRetail(page: Page): Promise<void> {
   const retailBlock = await page.$("css=label[title=Розница]");
   await retailBlock.click();
+}
+
+async function getNextPageLink(page: Page): Promise<ElementHandle<HTMLOrSVGElement>> {
+  const controlButtonsSection = await page.$(
+    'css=div[style="width:552px"]' + '>> css=div[style="position:relative;z-index:0;height:100%"]' + ">> css=._5i4ljs",
+  );
+  const button = await controlButtonsSection.$("div:last-child");
+  if ((await button.getAttribute("class")) === "_1fbvw2b4") {
+    console.log("Button has found");
+    await button.scrollIntoViewIfNeeded();
+    return button;
+  }
+  console.log("No buttons found");
+  return null;
 }
 
 function clearStoreData(store: RawStore): Store {
