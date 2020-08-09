@@ -4,6 +4,7 @@ import { DataResponse, RawStore } from "./types/data-response";
 import { categories } from "../src-data/categories";
 import { DataProviderJson } from "./data-provider/data-provider-json";
 import { Store } from "./types/store";
+import { StartAppTime } from "./time-manager/start-app-time";
 
 const browserConfig: LaunchOptions = {
   headless: false,
@@ -13,6 +14,8 @@ const browserConfig: LaunchOptions = {
 
 const dataProvider = new DataProviderJson();
 (async () => {
+  // Start the app
+  console.log(`App starts at ${StartAppTime.getStartTime()}`);
   const browser = await chromium.launch(browserConfig);
   const page = await browser.newPage();
   page.on("response", (res: Response) => {
@@ -22,6 +25,13 @@ const dataProvider = new DataProviderJson();
   });
   await page.goto(categories[0]);
   await toggleRetail(page);
+  await page.waitForNavigation();
+
+  // App is ready to iterate
+  await iterateOverThePages(page);
+  console.log(`Done`);
+  await page.close();
+  process.exit(0);
 })();
 
 function filterResponses(res: Response): boolean {
@@ -79,4 +89,16 @@ function clearStoreData(store: RawStore): Store {
     rubrics: store.rubrics,
     stat: store.stat,
   };
+}
+
+async function iterateOverThePages(page: Page): Promise<any> {
+  await page.waitForNavigation();
+  let toggle = await getNextPageLink(page);
+  if (toggle) {
+    let responsePromise = page.waitForResponse(/catalog.api.2gis.ru\/3.0\/items/g);
+    await toggle.click();
+    await responsePromise;
+    await iterateOverThePages(page);
+  }
+  return;
 }
