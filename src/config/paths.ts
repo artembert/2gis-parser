@@ -1,3 +1,3 @@
 export const DistPaths = {
-  KALININGRAD: "/kaliningrad.json",
+  KALININGRAD: "./dist-data/kaliningrad.json",
 };
