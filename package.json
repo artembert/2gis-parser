@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "jsonexport": "^3.0.1",
     "playwright": "1.2.1",
     "typescript": "3.9.7"
   },
